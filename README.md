@@ -2,29 +2,33 @@
 
 컴퓨터그래픽스 Project 2 — 2D 오픈소스 미니 프로젝트
 
-생명 3개를 모두 잃을 때까지 튀어 오르는 유리를 마우스 칼로 베어, **얼마나 정확히 반으로 잘랐는지**로 점수를 겨루는 2D 슬래셔 게임.
-칼질 한 번마다 외적·선형보간·선분 교차·신발끈 공식이, 정확히 반으로 자르면 포아송 표본화·보로노이·볼록 클리핑이 돌아가고,
-제목 화면의 **"어떤 원리일까?"** 버튼을 누르면 그 계산을 화면에 겹쳐 보며 직접 잘라 볼 수 있다.
+튀어 오르는 유리를 마우스로 베어, **두 조각의 넓이를 얼마나 똑같이 나눴는지**로 점수를 겨루는 2D 게임.
+제목 화면의 **"어떤 원리일까?"** 버튼을 누르면 자르기·부수기 계산을 화면에 겹쳐 보며 직접 잘라 볼 수 있다.
 
 ---
 
 ## 실행 방법
 
-빌드 과정 없이 브라우저에서 바로 실행된다. 단, ES 모듈을 쓰기 때문에 **파일을 더블클릭해서 열면 동작하지 않고**, 로컬 웹 서버로 열어야 한다.
+### 방법 1 — 웹에서 바로 실행 (설치 필요 없음)
 
-**방법 1 — Python** (Python 3 설치되어 있으면)
+**<https://syeoniism.github.io/glass-slash/>**
 
-```bash
-python -m http.server 8000
-```
+GitHub Pages로 배포한 주소. 브라우저(Chrome, Edge 최신 버전 권장)로 열면 바로 플레이할 수 있다.
 
-이 폴더(`index.html`이 있는 곳)에서 실행한 뒤 브라우저에서 <http://localhost:8000> 접속.
+### 방법 2 — 제출 파일로 실행 (인터넷 없이)
 
-**방법 2 — VS Code Live Server**: `index.html`을 열고 오른쪽 아래 *Go Live* 클릭.
+ES 모듈을 쓰기 때문에 `index.html`을 **더블클릭해서 열면 동작하지 않고**, 로컬 웹 서버로 열어야 한다.
 
-- 권장 브라우저: Chrome, Edge (최신 버전)
-- 효과음이 나오므로 소리를 켜 두면 좋다 (`M`으로 끌 수 있음)
-- 외부 라이브러리는 모두 `vendor/`에 포함되어 있다. 글꼴은 `fonts/` 폴더에 파일이 있으면 그것을 쓰고(제출 zip — 인터넷 없이 동작), 없으면 눈누 웹폰트 CDN에서 받는다(GitHub 저장소 — 글꼴 파일은 재배포 불가라 올리지 않음)
+1. 이 폴더(`index.html`이 있는 곳)에서 터미널을 열고 실행 (Python 3 필요)
+   ```bash
+   python -m http.server 8000
+   ```
+2. 브라우저에서 <http://localhost:8000> 접속
+
+또는 VS Code의 Live Server 확장으로 `index.html`을 열고 *Go Live*를 눌러도 된다.
+
+- 효과음이 나오므로 소리를 켜 두면 좋다.
+- 라이브러리는 `vendor/`, 글꼴은 `fonts/`에 들어 있어 인터넷 없이 동작한다.
 
 ---
 
@@ -32,123 +36,68 @@ python -m http.server 8000
 
 | 입력 | 동작 |
 |---|---|
-| 마우스 드래그 (누른 채 휘두르기) | 칼날. 너무 느리면(400 px/s 미만, 회색 칼날) 자르지 않음 |
-| **START** 버튼 클릭 / `Space` / `Enter` | 시작 (제목 화면에서는 떠오르는 유리를 베어 연습할 수 있음) |
-| 왼쪽 위 ❚❚ 아이콘 / `Esc` | 일시정지 / 계속 (다른 탭으로 가면 자동 일시정지). 일시정지 중 `R`은 처음으로 |
-| **어떤 원리일까?** 버튼 (제목 화면) | **원리 보기 화면** — 큰 유리 하나가 떠 있고, 천천히 그으면 외적 부호·교점·무게중심·넓이 %가 실시간으로 보임. `N`/Space 새 유리, **씨앗: 포아송/무작위** 버튼(`P`)으로 부술 때 씨앗 뿌리는 방식 선택(바꾸면 같은 모양 유리가 다시 나옴), `B` 부숴 보기(씨앗·보로노이 칸), **나란히 비교**(`C`): 같은 유리에 같은 개수의 씨앗을 포아송 / 무작위로 뿌려 파편을 양옆에 놓고 크기별로 색칠(`N` 다시 섞기), `Esc`/`R` 돌아가기 |
-| 스피커 아이콘 (게임 화면 왼쪽 위, 홈 화면 오른쪽 아래) / `M` | 효과음 끄기/켜기 |
-| 결과 화면 **처음으로** / `R` | 처음 화면으로 |
-| 결과 화면 **다시 시작** / `Space` | 바로 새 판 시작 |
-
-- **최고 점수**와 **최장 시간**(가장 오래 버틴 시간)을 따로 브라우저에 저장해 제목 화면과 결과 화면에 표시한다 (새 기록이면 "새 최고 점수!" / "새 최장 시간!")
+| 마우스 드래그 | 칼날. 너무 느리면(400 px/s 미만, 회색 칼날) 자르지 않음 |
+| **START** / `Space` / `Enter` | 게임 시작 (제목 화면에서는 떠오르는 유리로 연습 가능) |
+| 일시정지 아이콘 / `Esc` | 일시정지·계속 |
+| 스피커 아이콘 / `M` | 효과음 끄기·켜기 |
+| **어떤 원리일까?** (제목 화면) | 원리 보기 화면 — 천천히 그으면 외적 부호·교점·무게중심·넓이 %가 보임 |
+| 원리 보기: `N` / `B` / `P` / `C` / `Esc` | 새 유리 / 부숴 보기 / 씨앗 방식(포아송·무작위) 바꾸기 / 포아송·무작위 나란히 비교 / 돌아가기 |
 
 ## 게임 규칙
 
-- 제한 시간 없음, 생명 **3개**. 위쪽 가운데에 버틴 시간이 올라감 (처음 60초 동안 출현이 점점 빨라지고 그 뒤로는 가장 빠른 상태 유지)
-- 유리(볼록 다각형)와 폭탄(어두운 색 + **X 표시**)이 무작위로 튀어 오른다. 시간이 갈수록 더 자주 나오지만, 화면에 동시에 떠 있는 것은 최대 3개
-- 유리를 베면 두 조각의 넓이 비율로 점수: 작은 조각 비율 `a`에 대해 `100 × (2a)^2.3`
-  - 50 : 50 → 100점, 60 : 40 → 60점, 70 : 30 → 31점, 80 : 20 → 12점
-  - **48 : 52 이상이면 "정확히 반!"** +200점, 그리고 유리가 **산산조각**
-  - 44 : 56 ~ 48 : 52 사이면 "아깝다!" 표시 (보너스는 없음)
-- 한 번 썰린 조각은 다시 썰리지 않는다 (유리 하나에 한 번씩만)
-- **폭탄을 베거나 유리를 놓치면 생명 −1**. 생명이 0이 되면 GAME OVER, 이번 판의 점수와 버틴 시간이 각각 기록과 비교되어 반영
+- 유리를 베면 작은 조각의 넓이 비율 `a`로 점수: `100 × (2a)^2.3` (50 : 50 → 100점, 60 : 40 → 60점)
+- **48 : 52 이상이면 "정확히 반!"** +200점, 유리가 산산조각 난다. 44 : 56 이상이면 "아깝다!"
+- 생명은 3개. **유리를 놓치거나 폭탄(X 표시)을 베면** 하나씩 줄고, 모두 잃으면 게임 끝
+- 한 번 자른 조각은 다시 자를 수 없다. 최고 점수와 가장 오래 버틴 시간은 브라우저에 저장된다.
 
 ---
 
 ## 사용한 오픈소스
 
-| 라이브러리 | 버전 | 라이선스 | 이 게임에서 하는 일 | 파일 |
-|---|---|---|---|---|
-| [Matter.js](https://github.com/liabru/matter-js) | 0.20.0 | MIT | 강체 물리: 중력, 적분(위치·속도·회전 갱신), 물체 생성(`Bodies.fromVertices`). **그리기 기능은 쓰지 않음** | `vendor/matter.min.js` |
-| [d3-delaunay](https://github.com/d3/d3-delaunay) | 6.0.4 | ISC | 들로네 삼각분할 → 보로노이 칸 (`d3.Delaunay.from(...).voronoi(...)`) | `vendor/d3-delaunay.min.js` |
-| [Delaunator](https://github.com/mapbox/delaunator) | (d3-delaunay에 포함) | ISC | d3-delaunay 내부의 들로네 삼각분할 알고리즘 | 위 파일 안 |
-| [poisson-disk-sampling](https://github.com/kchapelier/poisson-disk-sampling) | 빌드 파일에 버전 표기 없음 | MIT | 파편 씨앗 점을 최소 간격 이상으로 고르게 배치 | `vendor/poisson-disk-sampling.min.js` |
+| 라이브러리 | 버전 | 라이선스 | 이 게임에서 하는 일 |
+|---|---|---|---|
+| [Matter.js](https://github.com/liabru/matter-js) | 0.20.0 | MIT | 강체 물리 (중력, 위치·속도·회전 갱신, 물체 생성) |
+| [d3-delaunay](https://github.com/d3/d3-delaunay) | 6.0.4 | ISC | 보로노이 칸 생성 (파편 모양) |
+| [Delaunator](https://github.com/mapbox/delaunator) | d3-delaunay에 포함 | ISC | d3-delaunay 내부의 들로네 삼각분할 |
+| [poisson-disk-sampling](https://github.com/kchapelier/poisson-disk-sampling) | 표기 없음 | MIT | 파편 씨앗 점을 최소 간격 이상으로 고르게 배치 |
 
-- 각 라이선스 전문: `vendor/LICENSES/`
-- 저장소 링크 목록: `repos.txt`
-- 음원: **없음**. 효과음은 Web Audio API로 코드에서 직접 합성 (`src/sfx.js`)
-- 글꼴 (`fonts/`): 제목 "GLASS SLASH"는 **SB 어그로 B** (`SB_Aggro_B.ttf`, 제작 (주)샌드박스네트워크) — 상업적 용도 무료, 웹사이트·임베딩 사용 가능, **폰트 파일 재배포·판매 불가** (눈누 요약 기준, 정확한 조건은 공식 배포 페이지 참고)
-  - 출처: https://noonnu.cc/font_page/738 (공식 배포: https://sandbox.co.kr/font)
-- 본문은 **Ok단단체** (`OkDanDan-Bold.ttf`, 제작 오케이티콘 OKTICON) — 개인·상업적 용도 무료, 별도 출처 표기 의무 없음, **폰트 파일 재배포 불가**
-  - 출처: https://www.okticon.com/freefont/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=169969648&t=board&ref=noonnu.cc
-- 글꼴 파일은 제출용 zip에만 **원본 그대로(수정 없이)** `fonts/` 폴더에 넣었다. 재배포 불가 조건 때문에 **공개 GitHub 저장소에는 글꼴 파일을 올리지 않았고**(`.gitignore`), 대신 `index.html`의 `@font-face`가 눈누에서 제공하는 웹폰트 주소(jsDelivr CDN)를 두 번째 후보로 쓴다.
-  - SB 어그로 B: `https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff`
-  - Ok단단체: `https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/OkDanDan-Bold.woff2` (눈누 https://noonnu.cc/font_page/1664)
+- 라이선스 전문: `vendor/LICENSES/`, 저장소 링크 목록: `repos.txt`
+- 음원: 없음. 효과음은 Web Audio API로 직접 합성 (`src/sfx.js`)
+- 글꼴: 제목 **SB 어그로 B** ((주)샌드박스네트워크, <https://noonnu.cc/font_page/738>), 본문 **Ok단단체** (오케이티콘, <https://noonnu.cc/font_page/1664>).
+  두 글꼴 모두 무료 사용 가능하지만 파일 재배포가 금지되어, 공개 GitHub 저장소에는 글꼴 파일을 올리지 않고 눈누 웹폰트(jsDelivr CDN)로 불러온다.
 
----
+## 원본 코드와 직접 작성한 코드
 
-## 원본 코드와 내가 작성한 코드의 구분
-
-| 폴더 | 내용 |
+| 위치 | 내용 |
 |---|---|
-| `vendor/` | **오픈소스 원본** (내려받은 그대로, 한 줄도 수정하지 않음) + 라이선스 |
-| `src/` | **전부 직접 작성한 코드**. 오픈소스는 `<script>`로 불러온 전역 객체(`Matter`, `d3`, `PoissonDiskSampling`)를 호출만 함 |
-| `index.html` | 직접 작성 (vendor 스크립트 3개 + `src/main.js` 불러오기) |
+| `vendor/` | **오픈소스 원본** — 내려받은 그대로, 수정하지 않음 |
+| `src/` | **직접 작성한 코드** — 자르기, 부수기, 점수, 출현, 그리기, 원리 보기. 오픈소스는 전역 객체(`Matter`, `d3`, `PoissonDiskSampling`)로 호출만 함 |
+| `index.html` | 직접 작성 — vendor 스크립트 3개와 `src/main.js`를 불러옴 |
+| `docs/demos/` | 각 라이브러리의 원본 예제를 돌려 본 페이지 (아래 표) |
 
-Matter.js에는 **물체를 자르는 기능이 없다.** 자르기, 부수기, 출현, 점수, 그리기, 원리 보기는 모두 `src/`에서 직접 구현했다.
+원리 설명에 쓰는 계산(외적, 선형보간, 선분 교차, 볼록 다각형 자르기, Sutherland–Hodgman 클리핑, 신발끈 넓이·무게중심)은 `src/geometry.js`에 공식 주석과 함께 모아 두었다.
 
 ### 원본 예제 데모 (`docs/demos/`)
 
-각 라이브러리의 기본 사용법을 그대로 돌려 본 페이지. 게임과 같은 방법으로 서버를 켠 뒤 주소로 연다.
-
 | 파일 | 내용 |
 |---|---|
-| `matter-basic.html` | Matter.js 기본 예제 (사각형·육각형이 떨어짐), 중력 1 → 0.3으로 바꿈 |
-| `matter-airfriction.html` | Matter.js Air Friction 예제 + 공기 저항 0.001 / 0.1일 때 1초 뒤 속도 측정 (9.417 / 0.018 px/스텝) |
+| `matter-basic.html` | Matter.js 기본 예제, 중력을 1 → 0.3으로 바꿈 |
+| `matter-airfriction.html` | Matter.js Air Friction 예제 + 공기 저항 0.001 / 0.1일 때 1초 뒤 속도 측정 |
 | `voronoi-basic.html` | d3-delaunay 기본 예제 (보로노이 칸) + 들로네 삼각형 겹쳐 그리기 |
-| `poisson-basic.html` | poisson-disk-sampling 기본 예제, README 값(minDistance 20)과 바꾼 값(40) 나란히 |
+| `poisson-basic.html` | poisson-disk-sampling 기본 예제, 최소 간격 20(원본)과 40(바꾼 값) 비교 |
 
-예: <http://localhost:8000/docs/demos/matter-airfriction.html>
-
-### `src/` 파일별 역할
-
-| 파일 | 역할 | 쓰는 오픈소스 |
-|---|---|---|
-| `geometry.js` | ★ **순수 기하 함수** — 외적, 선형보간, 회전, 선분 교차, 볼록 다각형 자르기, 볼록 다각형 안 판정, 볼록 클리핑(Sutherland–Hodgman), 신발끈 넓이·무게중심. 함수마다 공식 주석 | 없음 |
-| `physics.js` | 엔진 설정, 꼭대기 높이에서 발사 속도 역산, 유리 생성·발사, 화면 밖 제거 | Matter.js |
-| `slicer.js` | 칼날 진입점·이탈점 추적, 직선으로 두 조각 만들기, 속도 이어받기 | Matter.js |
-| `shatter.js` | 포아송 씨앗 → 보로노이 칸 → 유리로 클리핑 → 파편 | poisson-disk-sampling, d3-delaunay, Matter.js |
-| `blade.js` | 마우스 궤적, 칼날 속도 | 없음 |
-| `spawner.js` | 무작위 출현 (시간에 따라 난이도 증가) | 없음 |
-| `score.js` | 넓이 비율 → 점수 | 없음 |
-| `clock.js` | 게임 기준 시계 (`AudioContext.currentTime`) | 없음 (Web API) |
-| `sfx.js` | 효과음 합성 | 없음 (Web API) |
-| `particles.js` | 반짝이 가루 (작은 조각, 폭탄 불꽃) | 없음 |
-| `render.js` | Canvas 2D 그리기 (유리, 칼날, UI, 결과 화면) | 없음 |
-| `debug.js` | 원리 보기 화면의 계산 그림 (외적 부호, 교점, 무게중심, 보로노이 칸, AABB) | 없음 |
-| `main.js` | 게임 루프(고정 스텝 + 누적기), 화면 상태, 입력 | 없음 |
-| `config.js` | 모든 수치·색 상수 | 없음 |
-
----
-
-## 핵심 원리 요약 (자세한 공식은 `src/geometry.js`, `src/physics.js` 주석)
-
-1. **어느 쪽인가 — 2D 외적**: 자르는 직선 A→B에 대해 꼭짓점 v의 `s = cross(B − A, v − A)` 부호로 직선의 어느 쪽인지 판정
-2. **어디서 만나나 — 선형보간**: 변 양 끝의 부호가 다르면 교점 `P = v_i + (v_{i+1} − v_i)·t`, `t = s_i / (s_i − s_{i+1})`
-3. **둘로 나누기**: 부호에 따라 꼭짓점을 두 목록에 나누고 교점은 양쪽에 넣음 → 볼록 다각형은 항상 볼록 두 개로 나뉨 (그래서 오목 분해가 필요 없음)
-4. **넓이와 무게중심 — 신발끈 공식**: `A = ½ Σ (x_i y_{i+1} − x_{i+1} y_i)` → 점수(넓이 비율)와 새 조각의 위치
-5. **고르게 흩뿌리기 — 포아송 디스크 표본화**: 어떤 두 점도 최소 간격 r보다 가깝지 않게 → 파편 크기가 고름
-   (원리 보기 화면의 "나란히 비교"로 확인 가능. 반지름 160px 오각형 200개, 최소 간격 √A / 6(씨앗 약 23개), 난수 초깃값 20261112로 계산한 중간값: 파편 크기 편차(표준편차 ÷ 평균) 포아송 25.4% vs 무작위 52.8%, 가장 큰 ÷ 가장 작은 파편 3.1배 vs 9.5배, 200개 모두 무작위가 더 들쭉날쭉)
-6. **가장 가까운 영역 — 보로노이**: 씨앗마다 그 씨앗이 가장 가까운 영역 = 파편 모양
-7. **잘라 맞추기 — 볼록 클리핑**: 보로노이 칸을 유리의 각 변으로 차례로 잘라 유리 안쪽만 남김
-8. **꼭대기 높이에서 발사 속도 역산**: Matter.js의 한 스텝씩 적분(속도 += a, 위치 += 속도)으로 유도하면 `v₀ = −a(k* + ½)`, `k* = √(2H/a)` → 실측 오차 약 0ms
-9. **화면 주사율과 무관한 물리**: 오디오 시계 기준 고정 스텝(1/60초) + 누적기
-
----
+게임과 같은 방법으로 연다. 예: <https://syeoniism.github.io/glass-slash/docs/demos/matter-airfriction.html> 또는 <http://localhost:8000/docs/demos/matter-airfriction.html>
 
 ## 폴더 구조
 
 ```
-glass-slash/
-  index.html          진입점 (글꼴 @font-face 포함)
-  fonts/              글꼴 파일 (제목 SB 어그로, 본문 Ok단단체) — 제출 zip에만 포함, GitHub에는 없음
-  src/                직접 작성한 코드 (위 표)
-  vendor/             오픈소스 원본 + LICENSES/
-  docs/demos/         원본 예제 데모 (위 표)
-  README.md           이 문서
-  repos.txt           사용한 오픈소스 저장소 링크
+index.html      진입점
+src/            직접 작성한 코드
+vendor/         오픈소스 원본 + LICENSES/
+fonts/          글꼴 파일 (제출 파일에만 포함)
+docs/demos/     원본 예제 데모
+README.md       이 문서
+repos.txt       사용한 오픈소스 저장소 링크
+demo.mp4        데모 영상 (제출 파일에만 포함)
+설명 자료 PDF    고른 이유, 원리 설명, 바꾼 것, AI 사용 내역 (제출 파일에만 포함)
 ```
-
-## AI 사용
-
-AI(Claude, Claude Code)를 기획 정리와 코드 작성에 사용했다. 요청한 작업과 직접 결정·수정한 내용은 설명 자료 PDF의 5장에 정리했다.
