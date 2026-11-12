@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>d3-delaunay 기본 예제</title></head>
+<body style="margin:0; background:#fff">
+<canvas id="c" width="800" height="600"></canvas>
+<script src="../../vendor/d3-delaunay.min.js"></script>
+<script>
+  // d3-delaunay README의 기본 사용법: 점 → Delaunay.from → voronoi([x0, y0, x1, y1]) → 그리기
+  const width = 800, height = 600;
+  const ctx = document.getElementById('c').getContext('2d');
+  const points = Array.from({ length: 40 }, () => [Math.random() * width, Math.random() * height]);
+  const delaunay = d3.Delaunay.from(points);
+  const voronoi = delaunay.voronoi([0, 0, width, height]); // 보로노이 칸은 이 사각형으로만 잘림
+
+  // 원본: 보로노이 칸 경계
+  ctx.beginPath(); voronoi.render(ctx); voronoi.renderBounds(ctx);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // 바꾼 것: 들로네 삼각형을 겹쳐 그림 (빨간 점선)
+  // → 칸 경계가 이웃한 두 점을 잇는 삼각형 변의 수직이등분선 위에 놓이는 것을 확인
+  ctx.beginPath(); delaunay.render(ctx);
+  ctx.strokeStyle = 'rgba(220, 40, 40, 0.6)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 원본: 점
+  ctx.beginPath(); delaunay.renderPoints(ctx, 3);
+  ctx.fillStyle = '#000'; ctx.fill();
+</script>
+</body></html>

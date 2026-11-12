@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>유리 베기 (Glass Slash)</title>
+  <style>
+    /* 글꼴: fonts/ 폴더에 파일이 있으면 그것을, 없으면(GitHub 저장소) 눈누 웹폰트 CDN을 쓴다.
+       글꼴 파일은 재배포 불가라 저장소에는 올리지 않음 (README 참고).
+       한 굵기만 있으므로 모든 굵기(100~900)에 같은 파일을 써서 가짜 굵게 처리를 막음 */
+    @font-face {
+      font-family: "SBAggro";               /* 제목 "GLASS SLASH" */
+      src: url("fonts/SB_Aggro_B.ttf") format("truetype"),
+           url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff") format("woff");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "OkDanDan";              /* 본문 (오케이티콘 Ok단단체) */
+      src: url("fonts/OkDanDan-Bold.ttf") format("truetype"),
+           url("https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/OkDanDan-Bold.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    html, body { margin: 0; height: 100%; background: #14121f; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; cursor: crosshair; }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- 오픈소스 원본 (vendor/, 수정하지 않음) — 전역 Matter, d3, PoissonDiskSampling -->
+  <script src="vendor/matter.min.js"></script>
+  <script src="vendor/d3-delaunay.min.js"></script>
+  <script src="vendor/poisson-disk-sampling.min.js"></script>
+
+  <!-- 직접 작성한 코드 (src/) -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

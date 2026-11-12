@@ -1,0 +1,18 @@
+.claude/
+.DS_Store
+Thumbs.db
+*.zip
+*.mp4
+node_modules/
+fonts/
+
+# 제출·공개하지 않는 개인 작업 자료 (로컬에만 보관)
+AI_LOG.md
+PLAN.md
+CLAUDE.md
+docs/demo-notes.md
+docs/screenshots/
+docs/*.docx
+docs/report*.md
+*.pdf
+*.odt

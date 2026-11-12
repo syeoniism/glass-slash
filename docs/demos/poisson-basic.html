@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>poisson-disk-sampling 기본 예제</title></head>
+<body style="margin:0; background:#fff">
+<canvas id="c" width="1240" height="360"></canvas>
+<script src="../../vendor/poisson-disk-sampling.min.js"></script>
+<script>
+  // poisson-disk-sampling README의 기본 사용법:
+  //   new PoissonDiskSampling({ shape, minDistance, maxDistance, tries }).fill() → 점 배열 [[x, y], ...]
+  const ctx = document.getElementById('c').getContext('2d');
+  ctx.font = '16px sans-serif';
+
+  function draw(ox, label, options) {
+    const points = new PoissonDiskSampling(options).fill();
+    ctx.strokeStyle = '#999'; ctx.strokeRect(ox, 40, 600, 300);
+    ctx.fillStyle = '#000';
+    for (const [x, y] of points) { ctx.beginPath(); ctx.arc(ox + x, 40 + y, 2.5, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillText(`${label}: minDistance ${options.minDistance}, 점 ${points.length}개`, ox, 25);
+  }
+
+  // 원본 README 값
+  draw(10, '원본', { shape: [600, 300], minDistance: 20, maxDistance: 30, tries: 10 });
+  // 바꾼 값: 최소 간격을 두 배로 → 점 수가 약 1/4로 줄고, 여전히 고르게 퍼짐
+  // (게임에서는 이 값을 유리 넓이에 맞춰 √A / 3.5로 정한다)
+  draw(630, '바꾼 값', { shape: [600, 300], minDistance: 40, maxDistance: 60, tries: 10 });
+</script>
+</body></html>
