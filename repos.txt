@@ -11,11 +11,3 @@ https://github.com/mapbox/delaunator
 
 poisson-disk-sampling (MIT) - 포아송 디스크 표본화
 https://github.com/kchapelier/poisson-disk-sampling
-
-음원: 사용하지 않음 (효과음은 Web Audio API로 직접 합성 - src/sfx.js)
-
-글꼴 (fonts/)
-SB 어그로 B (SB_Aggro_B.ttf) - 제목 - (주)샌드박스네트워크, 상업적 무료, 폰트 파일 재배포·판매 불가
-https://noonnu.cc/font_page/738 (공식 배포: https://sandbox.co.kr/font)
-Ok단단체 (OkDanDan-Bold.ttf) - 오케이티콘(OKTICON), 개인·상업적 무료, 폰트 파일 재배포 불가
-https://www.okticon.com/freefont/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=169969648&t=board&ref=noonnu.cc
