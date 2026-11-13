@@ -1,6 +1,6 @@
 // render.js — 유리·배경·UI 그리기 (Canvas 2D). Matter.Render는 쓰지 않는다.
 
-import { VIEW, THEME, BLADE, GAME } from './config.js';
+import { VIEW, THEME, BLADE, GAME, IS_TOUCH, MOBILE } from './config.js';
 import { timeText } from './score.js';
 
 // 본문 글꼴 문자열. 크기는 THEME 배율로 키움: 작은 글자(≤ 24px)는 fontScaleSmall, 큰 글자는 fontScaleLarge
@@ -21,10 +21,14 @@ export function createRenderer(canvas) {
 
   function resize() {
     // 해상도 배율은 최대 2배까지 (3배 화면에서도 눈으로 차이는 거의 없고 그리는 양은 2.25배로 늘어남)
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    // 휴대폰은 MOBILE.DPR_MAX까지만 (그리는 양을 줄여 덜 끊기게)
+    const dpr = Math.min(IS_TOUCH ? MOBILE.DPR_MAX : 2, window.devicePixelRatio || 1);
     const w = window.innerWidth, h = window.innerHeight;
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
+    // 보이는 크기도 같은 값으로 (휴대폰 브라우저의 100vh는 주소창 뒤까지 포함해서 터치 좌표가 어긋남)
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
     // 비율 유지: 가로·세로 중 더 빡빡한 쪽에 맞추고 남는 쪽은 가운데 정렬(레터박스)
     view.scale = Math.min(w / VIEW.W, h / VIEW.H);
     view.ox = (w - VIEW.W * view.scale) / 2;
@@ -32,6 +36,8 @@ export function createRenderer(canvas) {
     view.dpr = dpr;
   }
   window.addEventListener('resize', resize);
+  // 휴대폰을 돌렸을 때 일부 브라우저는 resize가 늦거나 빠지므로 한 번 더
+  window.addEventListener('orientationchange', () => setTimeout(resize, 200));
   resize();
 
   return {
@@ -597,7 +603,7 @@ export function drawTitle(ctx, t, { records = { score: 0, time: 0 } } = {}) {
   // 메인 화면 글자 크기 (실제 px): 안내 28 · 연습 안내 22 · 최고 기록 28 · 시작 버튼 32
   ctx.font = uiFontPx(500, 28);
   ctx.fillStyle = THEME.text;
-  ctx.fillText('마우스를 누른 채 휘둘러 유리를 베세요. 정확히 반으로 자를수록 점수가 높습니다.', VIEW.W / 2, 322);
+  ctx.fillText(`${IS_TOUCH ? '화면을 손가락으로 쓸어' : '마우스를 누른 채 휘둘러'} 유리를 베세요. 정확히 반으로 자를수록 점수가 높습니다.`, VIEW.W / 2, 322);
   ctx.fillStyle = THEME.textDim;
   ctx.fillText('X 표시 폭탄을 베거나 유리를 놓치면 생명이 줄고, 생명 3개를 모두 잃으면 끝나요.', VIEW.W / 2, 362);
   ctx.font = uiFontPx(400, 22);
@@ -628,8 +634,10 @@ export const LAB_BUTTONS = {
 // 나란히 비교 화면의 "다시 섞기" 버튼 (가운데)
 export const COMPARE_FRESH = { x: VIEW.W / 2 - 100, ...LAB_ROW, w: 200 };
 
+// 터치 화면에서는 손가락이 덜 정확하므로 누르는 영역만 사방으로 MOBILE.HIT_PAD 넓힘 (그림 크기는 그대로)
 export function hitButton(b, p) {
-  return p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+  const m = IS_TOUCH ? MOBILE.HIT_PAD : 0;
+  return p.x >= b.x - m && p.x <= b.x + b.w + m && p.y >= b.y - m && p.y <= b.y + b.h + m;
 }
 export function hitStartButton(p) { return hitButton(START_BUTTON, p); }
 
@@ -723,7 +731,7 @@ export function drawLab(ctx, t, { shattered, shatteredMode = 'poisson', compare 
   const guide = compare ? '다시 섞기를 누르면 새 모양의 유리로 다시 비교해요.'
     : shattered ? '나란히 비교를 누르면 포아송과 무작위를 한눈에 비교할 수 있어요.'
     : cutDone ? '새 유리로 다시 해 보거나, 부숴 보기로 파편이 생기는 원리를 확인해 보세요.'
-    : '마우스를 누른 채 유리를 천천히 가로질러 그어 보세요.';
+    : `${IS_TOUCH ? '손가락으로' : '마우스를 누른 채'} 유리를 천천히 가로질러 그어 보세요.`;
   ctx.font = uiFontPx(500, 18);
   ctx.fillStyle = THEME.textDim;
   ctx.fillText(guide, VIEW.W / 2, LAB_BUTTONS.fresh.y - 24); // 아래 버튼 줄 바로 위

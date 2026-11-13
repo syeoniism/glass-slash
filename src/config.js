@@ -3,6 +3,14 @@
 // 논리 해상도 (창 크기에 맞춰 비율 유지 확대/축소)
 export const VIEW = { W: 1280, H: 720 };
 
+// 모바일(터치 화면)
+//   IS_TOUCH: 손가락이 주 입력인 기기 (휴대폰·태블릿). 마우스가 있는 노트북 터치스크린은 false
+export const IS_TOUCH = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+export const MOBILE = {
+  DPR_MAX: 1.5,      // 해상도 배율 상한 (PC는 2). 휴대폰은 화면이 작아 차이가 거의 없고 그리는 양이 줄어 덜 끊김
+  HIT_PAD: 14,       // 버튼 누르는 영역을 사방으로 이만큼(논리 px) 넓힘 — 손가락은 마우스보다 덜 정확
+};
+
 // 물리: Matter.js 고정 스텝
 export const PHYSICS = {
   DT_MS: 1000 / 60,        // 한 스텝 = 16.67ms

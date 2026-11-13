@@ -11,7 +11,7 @@
 // 물리: 고정 스텝(1000/60ms) + 누적기. 시계가 앞서간 만큼 스텝을 여러 번(또는 0번) 돌린다.
 //      → 화면 주사율(60Hz/144Hz)과 무관하게 같은 궤도.
 
-import { PHYSICS, BLADE, GAME, SCORE, VIEW, PRACTICE, LAUNCH, PARTICLES, FEEDBACK, THEME, LAB, DEV } from './config.js';
+import { PHYSICS, BLADE, GAME, SCORE, VIEW, PRACTICE, LAUNCH, PARTICLES, FEEDBACK, THEME, LAB, DEV, IS_TOUCH } from './config.js';
 import {
   createRenderer, drawBackground, drawGlass, drawBlade, drawPopups, drawTitle, drawHud, drawResult, drawDevText,
   drawPause, hitStartButton, hitButton, LAB_BUTTON, LAB_BUTTONS, COMPARE_FRESH, drawLab,
@@ -375,7 +375,14 @@ function updateTitle(now) {
   }, () => {});
 }
 
+// 모바일: 플레이 중 휴대폰을 세로로 돌리면 자동 일시정지 (세로 화면에는 "가로로 돌려 주세요" 안내가 덮임)
+// 회전 이벤트는 브라우저마다 늦거나 빠지기도 해서 매 프레임 창 비율로 직접 확인
+function pauseIfPortrait() {
+  if (IS_TOUCH && window.innerHeight > window.innerWidth && game.state === State.PLAY && !game.paused) togglePause();
+}
+
 function frame() {
+  pauseIfPortrait();
   const now = gameClock();
   const running = !game.paused;
   if (running) {
@@ -503,7 +510,22 @@ function pressButton(action) {
   action();
 }
 
+// 모바일: 게임을 시작할 때 전체 화면 + 가로 고정을 시도 (지원하지 않는 브라우저(iPhone Safari 등)는 조용히 넘어감)
+// 전체 화면은 사용자 입력 안에서만 요청할 수 있어서 START 버튼을 누를 때 부른다
+function enterMobileFullscreen() {
+  if (!IS_TOUCH || document.fullscreenElement) return;
+  const el = document.documentElement;
+  if (!el.requestFullscreen) return;
+  el.requestFullscreen({ navigationUI: 'hide' })
+    .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
+    .catch(() => {});
+}
+
+// 칼날은 손가락 하나만 따라간다 (두 번째 손가락이 닿아도 궤적이 끊기거나 튀지 않게)
+let bladePointer = null;
+
 canvas.addEventListener('pointerdown', e => {
+  if (bladePointer !== null && e.pointerId !== bladePointer) return; // 이미 다른 손가락으로 베는 중
   canvas.setPointerCapture(e.pointerId); // 캔버스 밖으로 나가도 계속 추적
   const p = toWorld(e);
   if (game.state === State.PLAY) {
@@ -536,21 +558,27 @@ canvas.addEventListener('pointerdown', e => {
     if (hitButton(LAB_BUTTONS.seed, p)) { pressButton(labToggleSeedMode); return; }
   }
   if (game.state === State.TITLE) {
-    if (hitStartButton(p)) { pressButton(startPlay); return; }
-    if (hitButton(LAB_BUTTON, p)) { pressButton(enterLab); return; }
+    if (hitStartButton(p)) { enterMobileFullscreen(); pressButton(startPlay); return; }
+    if (hitButton(LAB_BUTTON, p)) { enterMobileFullscreen(); pressButton(enterLab); return; }
     if (hitButton(TITLE_SOUND_BUTTON, p)) { sfx.toggleMute(); if (!sfx.muted) clock.start().then(() => sfx.click()); return; }
     clock.start(); // 연습 중에도 효과음이 나도록 (사용자 입력 안에서만 오디오를 켤 수 있음)
   }
+  bladePointer = e.pointerId;
   blade.press(p);
 });
 canvas.addEventListener('pointermove', e => {
-  if (!blade.down) return;
+  if (!blade.down || e.pointerId !== bladePointer) return;
   // 브라우저가 한 프레임 안의 이동을 합쳐 보내므로, 합쳐진 점들을 모두 꺼내 궤적을 촘촘하게
   const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
   for (const ev of (evs.length ? evs : [e])) blade.add(toWorld(ev));
 });
 // 떼면 진입 기록 취소 — 단, 이번 프레임에 이미 그어진 선분은 먼저 처리한 뒤에 (frame에서)
-const release = () => { blade.release(); game.releasePending = true; };
+const release = e => {
+  if (e.pointerId !== bladePointer) return;
+  bladePointer = null;
+  blade.release();
+  game.releasePending = true;
+};
 canvas.addEventListener('pointerup', release);
 canvas.addEventListener('pointercancel', release);
 
@@ -590,6 +618,12 @@ window.addEventListener('keydown', e => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && game.state === State.PLAY && !game.paused) togglePause();
 });
+
+// 모바일
+if (IS_TOUCH) {
+  // iPhone Safari는 pointerdown만으로는 오디오를 켜 주지 않을 때가 있어서, 손을 뗄 때(touchend)도 한 번 켜 둔다
+  window.addEventListener('touchend', () => { clock.start().catch(() => {}); }, { once: true });
+}
 
 // 콘솔에서 확인용
 window.game = game;
